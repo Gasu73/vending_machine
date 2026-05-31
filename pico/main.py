@@ -5,6 +5,7 @@ pot = ADC(26)   # GP26 = ADC0
 servo = PWM(Pin(16))
 servo.freq(50)
 
+
 # segmentos
 a = Pin(0, Pin.OUT)
 b = Pin(1, Pin.OUT)
@@ -45,9 +46,16 @@ def leer_potenciometro():
 segmentos = [a,b,c,d,e,f,g]
 
 numeros = {
+    0: [0,0,0,0,0,0,1],
     1: [1,0,0,1,1,1,1],
     2: [0,0,1,0,0,1,0],
-    3: [0,0,0,0,1,1,0]
+    3: [0,0,0,0,1,1,0],
+    4: [1,0,0,1,1,0,0],
+    5: [0,1,0,0,1,0,0],
+    6: [0,1,0,0,0,0,0],
+    7: [0,0,0,1,1,1,1],
+    8: [0,0,0,0,0,0,0],
+    9: [0,0,0,0,1,0,0]
 }
 
 
@@ -71,6 +79,12 @@ def levantar_compuerta():
     sleep(3)
 
     servo.duty_u16(CERRAR)   # cerrar compuerta
+
+
+
+for i in range(10):
+    cambiar_7segmentos(i)
+    sleep(1)
 
 
 servo.duty_u16(CERRAR) # Cerrar la compuerta al iniciar el código
