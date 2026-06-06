@@ -1,0 +1,14 @@
+{
+    "1": {
+        "nombre": "Coca Cola",
+        "stock": 8
+    },
+    "2": {
+        "nombre": "Pepsi",
+        "stock": 9
+    },
+    "3": {
+        "nombre": "Fanta",
+        "stock": 9
+    }
+}
