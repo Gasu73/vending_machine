@@ -1,6 +1,8 @@
 from machine import ADC, PWM, Pin
 from time import sleep
 import ujson
+import network
+import socket
 
 pot = ADC(26)   # GP26 = ADC0
 servo = PWM(Pin(16))
@@ -9,6 +11,10 @@ boton  = Pin(9, Pin.IN, Pin.PULL_UP)
 
 led_verde = Pin(14, Pin.OUT)
 led_rojo = Pin(15, Pin.OUT)
+
+led_p1 = Pin(19, Pin.OUT)
+led_p2 = Pin(20, Pin.OUT)
+led_p3 = Pin(21, Pin.OUT)
 
 
 # segmentos
@@ -36,9 +42,73 @@ numeros = {
     -1: [1,1,1,1,1,1,1]
 }
 
-
-
 producto = 1
+
+ 
+ 
+
+
+# WIFI
+SSID     = "KevinNet"
+PASSWORD = "12345678"
+
+wifi = network.WLAN(network.STA_IF)
+wifi.active(True)
+wifi.connect(SSID, PASSWORD)
+
+while not wifi.isconnected():
+    print("esperando")
+    pass
+
+print("Conectado")
+
+direccion_ip = wifi.ifconfig()[0]
+print("IP:", direccion_ip)
+
+
+servidor = socket.socket()
+servidor.bind(("0.0.0.0", 8080))
+servidor.listen(1)
+
+print("Esperando en:", direccion_ip, ":8080")
+
+servidor.setblocking(False)
+
+
+
+
+def atender_cliente():
+    try:
+        cliente, addr = servidor.accept()
+        
+        print("Cliente conectado:", addr)
+        
+        cliente.settimeout(1)
+
+        mensaje = cliente.recv(1024).decode().strip()
+
+        if mensaje == "GET_DATA":
+
+            respuesta = {
+                "stock": cargar_productos(),
+                "ventas": cargar_ventas()
+            }
+
+            cliente.send(ujson.dumps(respuesta).encode())
+            
+        
+
+
+        cliente.close()
+        
+        
+
+    except OSError:
+        pass
+    
+    
+    
+
 
 
 #Funciones JSON
@@ -66,19 +136,24 @@ def leer_potenciometro():
     
     valor = pot.read_u16()
 
-    print("Valor:", valor)
 
     if valor < 20000:
-        print("1")   # izquierda
         producto = 1
+        led_p1.value(1)
+        led_p2.value(0)
+        led_p3.value(0)
 
     elif valor < 45000:
-        print("2")   # centro
         producto = 2
+        led_p2.value(1)
+        led_p1.value(0)
+        led_p3.value(0)
         
     else:
-        print("3")   # derecha
         producto = 3
+        led_p3.value(1)
+        led_p2.value(0)
+        led_p1.value(0)
     
 
 
@@ -100,6 +175,8 @@ def cambiar_leds(stock):
     else:
         led_verde.value(0)
         led_rojo.value(1)
+        
+    
             
 
 
@@ -147,13 +224,16 @@ cambiar_7segmentos(-1) # Apagar 7 segmentos
 productos = cargar_productos()
 
 while True:
-
+    
+    atender_cliente()
+    
     leer_potenciometro()
 
     stock = productos[str(producto)]["stock"]
 
     cambiar_7segmentos(stock)
     cambiar_leds(stock)
+    
     
 
     if boton.value() == 0 and stock > 0:
