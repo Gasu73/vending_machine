@@ -43,6 +43,7 @@ numeros = {
 }
 
 producto = 1
+mantenimiento_activo = False
 
  
  
@@ -95,7 +96,10 @@ def atender_cliente():
             }
 
             cliente.send(ujson.dumps(respuesta).encode())
-            
+
+        if mensaje == "MANTE":
+            global mantenimiento_activo
+            mantenimiento_activo = not mantenimiento_activo
         
 
 
@@ -226,6 +230,17 @@ productos = cargar_productos()
 while True:
     
     atender_cliente()
+
+    if mantenimiento_activo:
+        cambiar_7segmentos(-1) # Apagar 7 segmentos
+        led_p1.value(1)
+        led_p2.value(1)
+        led_p3.value(1)
+        led_verde.value(0)
+        led_rojo.value(0)
+        continue
+
+
     
     leer_potenciometro()
 
