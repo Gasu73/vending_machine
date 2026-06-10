@@ -35,7 +35,7 @@ class PantallaDashboard:
 
             if self.rect_btn_mant.collidepoint(evento.pos):
                 self.mantenimiento_activo = not self.mantenimiento_activo # not invierte el valor, en este caso de False a True
-                comunicacion.enviar_mantenimiento(self.ip, self.mantenimiento_activo)
+                comunicacion.enviar_mantenimiento(self.ip)
             # Llama a enviar el mantenimiento si se clickea el botón del mantenimiento
 
         return None

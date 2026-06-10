@@ -27,14 +27,19 @@ def pedir_datos(ip):
         return None
 
 
-def enviar_mantenimiento(ip, activar):
+def enviar_mantenimiento(ip):
     try:
         canal = socket.socket() # Crea el canal TCP
         canal.settimeout(5) # Tiempo de espera para la respuesta
         canal.connect((ip, 8080)) # Conexión con la rasp en el puerto 8080
 
-        comando = json.dumps({"accion": "mantenimiento", "estado": activar}) # Se convierte el diccionario a str json
-        canal.sendall((comando + "\n").encode()) # Envía el comando en bytes a la rasp
+        print("Enviando a Raspberry:", repr("MANTE\n")) # repr es para imprimir el \n
+        canal.send("MANTE\n".encode()) # \n es para decirle a la Rasp que el mensaje finaliza ahí
+                                          # encode, convierte el texto en bytes, códifica para el socket
+
+        respuesta = canal.recv(4096).decode() # decode decodifica los bytes a texto, recv() tiene como parametro
+                                              # el máximo de bytes que se reciben en una única llamada
+
         canal.close()
 
         return True
